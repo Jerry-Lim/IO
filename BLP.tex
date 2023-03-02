@@ -1,0 +1,183 @@
+\documentclass[10pt]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage{xeCJK}
+\usepackage{graphicx}
+\usepackage {mathtools}
+\usepackage{utopia} %font utopia imported
+\usetheme{CambridgeUS}
+\usecolortheme{dolphin}
+
+% set colors
+\definecolor{myNewColorA}{RGB}{25,25,112}
+\definecolor{myNewColorB}{RGB}{25,25,112}
+\definecolor{myNewColorC}{RGB}{25,25,112}
+\setbeamercolor*{palette primary}{bg=myNewColorC}
+\setbeamercolor*{palette secondary}{bg=myNewColorB, fg = white}
+\setbeamercolor*{palette tertiary}{bg=myNewColorA, fg = white}
+\setbeamercolor*{titlelike}{fg=myNewColorA}
+\setbeamercolor*{title}{bg=myNewColorA, fg = white}
+\setbeamercolor*{item}{fg=myNewColorA}
+\setbeamercolor*{caption name}{fg=myNewColorA}
+\usefonttheme{professionalfonts}
+\usepackage{natbib}
+\usepackage{hyperref}
+%------------------------------------------------------------
+
+\setbeamerfont{title}{size=\large}
+\setbeamerfont{subtitle}{size=\small}
+\setbeamerfont{author}{size=\small}
+\setbeamerfont{date}{size=\small}
+\setbeamerfont{institute}{size=\small}
+\title[NYU MSQE]{Research Practicum 2}
+
+\author[Junrui Lin]{Junrui Lin}
+
+\institute[jl12680]{NYU MSQE}
+\date[\textcolor{white}{\today} ]
+{\today}
+
+%------------------------------------------------------------
+%This block of commands puts the table of contents at the 
+%beginning of each section and highlights the current section:
+%\AtBeginSection[]
+%{
+%  \begin{frame}
+%    \frametitle{Contents}
+%    \tableofcontents[currentsection]
+%  \end{frame}
+%}
+\AtBeginSection[]{
+  \begin{frame}
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+    \usebeamerfont{title}\insertsectionhead\par%
+  \end{beamercolorbox}
+  \vfill
+  \end{frame}
+}
+%------------------------------------------------------------
+
+\begin{document}
+
+%The next statement creates the title page.
+\frame{\titlepage}
+
+%------------------------------------------------------------
+
+
+
+
+
+
+\begin{frame}{Most Efficient IV (Chamberlain, G., 1987)}
+\begin{itemize}
+\item In linear regression, $y=X\beta+u$, and $\mathbb{E}[uu']=\Omega$
+
+\item $X$ serves as IV for itself
+
+\item The IV(OLS) condition $\mathbb{E}[u_i|X_i]=0$. Within GMM framework, we have the moment condition 
+  $\mathbb{E}[X_iu_i]=0$ or say $\mathbb{E}[f(X_i)u_i]=0$
+  
+\item And thus the GMM estimates is \begin{align*}
+	\hat\beta^{GMM}&=\arg\min_{\beta} [\frac{1}{n}\sum_{i=1}^nf(X_i)u_i]'W[\frac{1}{n}\sum_{i=1}^nf(X_i)u_i]\\
+	&=\arg\min_{\beta} [\frac{1}{n}\sum_{i=1}^nf(X_i)(y_i-X_i\beta)]'W[\frac{1}{n}\sum_{i=1}^nf(X_i)(y_i-X_i\beta)]\\
+	&:=\arg\min_{\beta} [\frac{1}{n}\sum_{i=1}^n\psi(X_i,\beta)]'W[\frac{1}{n}\sum_{i=1}^n\psi(X_i,\beta)]	
+\end{align*}
+\item From Chris's class we know the best $W$ is $\mathbb{E}[\psi(X_i,\beta)\psi '(X_i,\beta)]^{-1}$
+
+\end{itemize}
+
+	
+\end{frame}
+
+
+\begin{frame}{Most Efficient IV (Chamberlain, G., 1987)}
+\begin{itemize}
+	\item With the best $W$, we get the limiting distribution of $\hat\beta^{GMM}$
+	$$\sqrt{n} (\hat\beta^{GMM}-\beta)\sim N(a_n,\Lambda_0)$$
+	\item Where $$\Lambda_0 = \bigg(\mathbb{E}\bigg[\frac{\partial\psi(X,\beta)}{\partial \beta'}\bigg]'\mathbb{E}[\psi(X,\beta)\psi '(X,\beta)]^{-1}\mathbb{E}\bigg[\frac{\partial\psi(X,\beta)}{\partial \beta'}\bigg]\bigg)^{-1}$$
+	\item In linear regression case
+	$$\Lambda_0 = \bigg(\mathbb{E}\bigg[f(X)X'\bigg]'\mathbb{E}[f(X)(y-X\beta)(y-X\beta)'f(X)']^{-1}\mathbb{E}\bigg[f(X)X'\bigg]\bigg)^{-1}$$
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Most Efficient IV (Chamberlain, G., 1987)}
+\begin{itemize}
+	\item Question: How to choose $f(Z)$ such that the estimator is most efficient?
+	\item Define the conditional moment restrictions: $\mathbb{E}[\rho(Z,\beta)|Z]=0$ 
+	\item Chamberlain said and proved:
+	$$f(Z) = D(Z)'\Omega^{-1}$$
+	where $D(Z)=\mathbb{E}[\frac{\partial \rho(Z,\beta)}{\partial \beta'}|Z],\ \Omega = \mathbb{E}[\rho(Z,\beta)\rho'(Z,\beta)|Z]$
+	\item \textbf{Example:} In linear regression the conditional moment restrictions $\mathbb{E}[y-X\beta|X]=0,\ \rho(X,\beta) = y-X\beta$
+	$$f(X) = \mathbb{E}[-X]'\mathbb{E}[(y-X\beta)(y-X\beta)']^{-1}=-\frac{X}{\sigma^2(X)}$$
+	The moment condition we should use is $$\mathbb{E}[\frac{X}{\sigma^2(X)}(y-X\beta)]=0$$
+\end{itemize}
+
+\end{frame}
+
+
+
+\begin{frame}{Good IV in BLP (Reynaert, M. and Verboven, F., 2014)}
+Demand Set up
+\begin{itemize}
+	\item $u_{ijt}=x_{jt}\beta_i-\alpha p_{jt}+\xi_{jt}+\varepsilon_{ijt}$ 
+	\item $\beta_i$ is the random coefficient (preference) $\beta_i^k = \beta^k + \sigma^k \nu_i^k$, where $\sigma^k$ is with zero mean and unit variance.
+	\item $u_{ijt}=x_{jt}\beta-\alpha p_{jt}+\xi_{jt}+\sum_k x_{jt}^k\sigma^k\nu_i^k+\varepsilon_{ijt}:=\delta_{jt}+\mu_{jt}(\nu_i)+\varepsilon_{ijt}$
+	\item Then we get market share
+	$$s_{jt}(\delta_{jt},\sigma)=\int\frac{\exp\bigg(\delta_{jt}+\mu_{jt}(v_i)\bigg)}{1+\sum_{l=1}^J\exp\bigg(\delta_{lt}+\mu_{lt}(v_i)\bigg)}dP_\nu(\nu)$$
+	\item The market share can be computed by Monte Carlo or polynomial-based integration
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Good IV in BLP (Reynaert, M. and Verboven, F., 2014)}
+Supply Set up
+\begin{itemize}
+	\item The marginal cost $c_{jt}=x_{jt}\gamma_1+w_{jt}\gamma_2+\omega_{jt}$
+	\item Under the perfect competition assumption $p_{jt}=c_{jt}$, with different assumption, we can back out the proper $c_{jt}$\\
+	e.g. firm set price of their product set $M\subset J$ to maximize
+	$$\pi_t = \sum_{m\in M_t}s_{mt}(p_{mt})[p_{mt}-c_{mt}]$$
+	$$s_{mt}(p^*)+\frac{\partial s_{mt}(p^*)}{\partial p^*}(p^*-c_{mt})=0$$ 
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}{Good IV in BLP (Reynaert, M. and Verboven, F., 2014)}
+Estimation
+\begin{itemize}
+	\item Identification Assumption: $\mathbb{E}[\xi_{jt}|X_t,W_t]=0,\ \mathbb{E}[\omega_{jt}|X_t,W_t]=0$ 
+	\item Let $Z_t = [X_t\ W_t], \rho_{jt} = [\xi_{jt}\ \omega_{jt}]'$, use GMM, the moment condition is $$\mathbb{E}[f_{jt}(Z_t)\rho_{jt}]=0$$
+	\item From demand side $\xi_t = \delta_t-X_t\beta +\alpha p_t$
+	\item From supply side $\omega_t = c_t-X_t\gamma_1 -W_t\gamma_2$
+
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Good IV in BLP (Reynaert, M. and Verboven, F., 2014)}
+Estimation ($\Theta=\{\beta,\alpha,\sigma, \gamma\}$)
+\begin{itemize}
+	\item Recall that$$s_{jt}(\delta_{jt},\sigma)=\int\frac{\exp\bigg(\delta_{jt}+\mu_{jt}(v_i)\bigg)}{1+\sum_{l=1}^J\exp\bigg(\delta_{lt}+\mu_{lt}(v_i)\bigg)}dP_\nu(\nu)$$
+	\item We can compute $\delta_{jt} =s_{jt}^{−1}(s_{jt},\sigma):=\delta_{jt}(s_{jt},\sigma)$ by BLP's contraction
+	\item Then we can write $\xi_t=\rho_1(\Theta),\ \omega_t =\rho_2(\Theta),\ \rho(\Theta)=[\rho_1(\Theta)\ \rho_2(\Theta)]' $
+	\item Now we choose $\Theta$
+	$$\min_{\Theta}\rho(\Theta)'f(Z)'Af(Z)\rho(\Theta)$$
+	\item This is actually hard, there is a fixed point problem ($\delta_{jt}(s_{jt},\sigma)$) inside the optimization problem, so called nested fixed-point(NFXP)
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Good IV in BLP (Reynaert, M. and Verboven, F., 2014)}
+Estimation ($\Theta=\{\beta,\alpha,\sigma, \gamma\}$)
+\begin{itemize}
+	\item 
+\end{itemize}
+\end{frame}
+
+
+
+
+\end{document}
+
+
+

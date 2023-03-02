@@ -1,0 +1,205 @@
+\documentclass[10pt]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage{xeCJK}
+\usepackage{graphicx}
+\usepackage {mathtools}
+\usepackage{utopia} %font utopia imported
+\usetheme{CambridgeUS}
+\usecolortheme{dolphin}
+
+% set colors
+\definecolor{myNewColorA}{RGB}{25,25,112}
+\definecolor{myNewColorB}{RGB}{25,25,112}
+\definecolor{myNewColorC}{RGB}{25,25,112}
+\setbeamercolor*{palette primary}{bg=myNewColorC}
+\setbeamercolor*{palette secondary}{bg=myNewColorB, fg = white}
+\setbeamercolor*{palette tertiary}{bg=myNewColorA, fg = white}
+\setbeamercolor*{titlelike}{fg=myNewColorA}
+\setbeamercolor*{title}{bg=myNewColorA, fg = white}
+\setbeamercolor*{item}{fg=myNewColorA}
+\setbeamercolor*{caption name}{fg=myNewColorA}
+\usefonttheme{professionalfonts}
+\usepackage{natbib}
+\usepackage{hyperref}
+%------------------------------------------------------------
+
+\setbeamerfont{title}{size=\large}
+\setbeamerfont{subtitle}{size=\small}
+\setbeamerfont{author}{size=\small}
+\setbeamerfont{date}{size=\small}
+\setbeamerfont{institute}{size=\small}
+\title[NYU MSQE]{DDC}
+
+\author[Junrui Lin]{Junrui Lin}
+
+\institute[jl12680]{NYU MSQE}
+\date[\textcolor{white}{\today} ]
+{\today}
+
+%------------------------------------------------------------
+%This block of commands puts the table of contents at the 
+%beginning of each section and highlights the current section:
+%\AtBeginSection[]
+%{
+%  \begin{frame}
+%    \frametitle{Contents}
+%    \tableofcontents[currentsection]
+%  \end{frame}
+%}
+\AtBeginSection[]{
+  \begin{frame}
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+    \usebeamerfont{title}\insertsectionhead\par%
+  \end{beamercolorbox}
+  \vfill
+  \end{frame}
+}
+%------------------------------------------------------------
+
+\begin{document}
+
+%The next statement creates the title page.
+\frame{\titlepage}
+
+%------------------------------------------------------------
+
+\begin{frame}{Nested Fixed Point Theorem (Rust, J., 1987)}
+\textbf{Setup of \textit{Regenerative Optimal Stopping Problem}}
+\begin{itemize}
+\item Zurcher chooses discrete actions $i_t$ each period, $i_t = 1(replace), i_t = 0(keep)$
+\item We observe regenerative process $\{i_t,x_t\}$, the likelihood of the process can be written as $l(i_1,...,i_t,x_1,...,x_t|\theta)$ 
+\item Define differentiable cost function $c(x_t,\theta_1)$, the flow utility will be
+\begin{equation*}
+u(x_t,i_t,\theta_1)=\begin{cases}
+	-c(x_t,\theta_1) & i_t = 0 \\
+	-s-c(0,\theta_1) & i_t = 1
+\end{cases}	
+\end{equation*}
+\item The question is also called Markov Decision Problem (MDP), because the state (milage of the engine $x_t$) has Markov property
+\begin{equation*}
+p(x_{t+1}|x_t,i_t,\theta_2)=\begin{cases}
+	\theta_2\exp\{\theta_2(x_{t+1}-x_t)\} & i_t = 0, x_{t+1}\geq x_t\\
+	\theta_2\exp\{\theta_2(x_{t+1})\} & i_t = 0, x_{t+1}\geq 0\\
+	0 &\text{otherwise}
+\end{cases}	
+\end{equation*}
+\end{itemize}
+\end{frame}
+
+
+
+
+
+\begin{frame}{Nested Fixed Point Theorem (Rust, J., 1987)}
+Now we solve the problem
+\begin{itemize}
+\item First we can write out the Bellman equation
+$$V_\theta(x_t)=\max_{i_t}\mathbb{E}\bigg[u(x_t,i_t,\theta_1)+\beta \int_0^\infty V_\theta(x_{t+1})d G(x_{t+1}|x_t,i_t,\theta_2)\bigg]$$
+\item In Rust (1986), he proved there is an optimal stationary, Markovian replacement policy $\Pi = \{f,f,...\}$
+\begin{equation*}
+i_t^*=f(x_t,\theta)=\begin{cases}
+	1 & x>\gamma(\theta_1,\theta_2)\\
+	0 & x\leq\gamma(\theta_1,\theta_2)
+\end{cases}	
+\end{equation*}
+where
+$$s(1-\beta)=\int_0^{\gamma(\theta_1,\theta_2)}[1-\beta\exp\{-\theta_2(1-\beta) x'\}]\frac{\partial c(x',\theta_1)}{\partial x'}dx'$$
+ \item Then we can form the likelihood to use MLE and solve for $\theta$
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Nested Fixed Point Theorem (Rust, J., 1987)}
+It looks good, but there are several drawbacks
+\begin{itemize}
+\item Assuming the monthly mileage $(x_{t+1}-x_t)$ has i.i.d. exponential does't reflect real data, but using other flexible distribution will ruin previous explicit solution
+\item The cutoff replacement rule doesn't fit the data, in the data, there are replacement in many values of $x_t$, potential explanation: $x_t$ is just one dimension of the quality of the engine, there are unobserved characteristics $\varepsilon_t$ that affect the replacement decision
+\item So the decision rule should be something like
+ $$i_t = f(x_t,\theta)+\varepsilon_t$$
+where $\varepsilon_t$ is observed by the agent but not the econometrician.
+\item However this solution makes the estimation very challenging: the structural model assume optimization, but the solution means agent deviates the optimal behavior randomly.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Nested Fixed Point Theorem (Rust, J., 1987)}
+\begin{itemize}
+\item Given Markovian state variables $(x_t,\varepsilon_t)$ embodied by the transition probability $p(\theta_2,\theta_3)$---also relate to the optimal control $f$
+$$p(x_{t+N},\varepsilon_{t+N},...,x_{t+1},\varepsilon_{t+N}|x_t,\varepsilon_t)=\prod_{i=1}^{N-1}p(x_{i+1},\varepsilon_{i+1}|x_i,\varepsilon_i,f_i(x_i,\varepsilon_i),\theta_2,\theta_3)$$
+\item Agent chooses sequence of decision rule $\Pi=\{f_1,f_2,...\}$ to maximize utility
+ $$V_\theta(x_0,\varepsilon_0)=\max_{\Pi}\mathbb{E}\bigg\{\sum_{j=1}^{\infty}\beta^j[u(x_j,f_j,\theta_1)+\varepsilon_j(f_j)]|x_0,\varepsilon_0,\theta_2,\theta_3\bigg\}$$
+ $$V_\theta(x_t,\varepsilon_t) = \max_{i_t}[u(x_t,i_t,\theta_1)+\varepsilon_t(i_t)+\beta\mathbb{E}V_\theta(x_{t+1},i_t,\varepsilon_{t+1})]$$
+ where
+ $$\mathbb{E}V_\theta(x_{t+1},i_t,\varepsilon_{t+1})=\int_{x'}\int_{\varepsilon'}V_\theta(x',\varepsilon')d G(x',\varepsilon'|x_t,\varepsilon_t,i_t,\theta_2,\theta_3)$$
+\item The optimal control thus is
+$$f_t(x_t,\varepsilon_t,\theta) = \arg\max_{i_t}[u(x_t,\theta_1)+\varepsilon_t(i_t)+\beta\mathbb{E}V_\theta(x_{t+1},i_t,\varepsilon_{t+1})]$$
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Nested Fixed Point Theorem (Rust, J., 1987)}
+$$V_\theta(x_t,\varepsilon_t) = \max_{i_t}[u(x_t,i_t,\theta_1)+\varepsilon_t(i_t)+\beta\mathbb{E}V_\theta(x_{t+1},i_t,\varepsilon_{t+1})]$$
+ $$\mathbb{E}V_\theta(x_{t+1},i_t,\varepsilon_{t+1})=\int_{x'}\int_{\varepsilon'}V_\theta(x',\varepsilon')d p(x',\varepsilon'|x_t,\varepsilon_t,i_t,\theta_2,\theta_3)$$
+$$f_t(x_t,\varepsilon_t,\theta) = \arg\max_{i_t}[u(x_t,\theta_1)+\varepsilon_t(i_t)+\beta\mathbb{E}V_\theta(x_{t+1},i_t,\varepsilon_{t+1})]$$
+
+The optimal control is very hard to solve
+\begin{itemize}
+	\item The unobservable $\varepsilon_t$'s support usually is unbounded, when do grid search, it creates difficulty to find fixed point of $V_\theta(x_t,\varepsilon_t)$
+	\item Since $\mathbb{E}V_\theta(x_{t+1},i_t,\varepsilon_{t+1})$ is an unknown function, in every iteration, we need to numerically integrate $V_\theta$ over finite grid approximation of $p$ to get $\mathbb{E}V_\theta$. And then integrate the Bellman equation to get $P(i_t|x_t,\theta)$
+\end{itemize}
+\bigskip
+Under some condition, Rust propose a MLE algorithm to solve the dynamic discrete choice (DDC) problem.
+\end{frame}
+
+\begin{frame}{Nested Fixed Point Theorem (Rust, J., 1987)}
+\textbf{conditional independence assumption:}
+$$p(x_{t+1},\varepsilon_{t+1}|x_t,\varepsilon_t,i_t,\theta_2,\theta_3)=q(\varepsilon_{t+1}|x_{t+1},\theta_2)p(x_{t+1}|x_t,i_t,\theta_3)$$
+under this assumption
+\begin{itemize}
+	\item Let $G([u(x,\theta_1)+\beta\mathbb{E}V_\theta(x)]|x,\theta_2)$ denote the social surplus function corresponding to the density $q(\varepsilon|x,\theta_2)$
+	$$G = \int_\varepsilon \max_i [u(x,i,\theta_1)+\beta\mathbb{E}V_\theta(x,i)]dq(\varepsilon|x,\theta_2)$$
+	Then 
+	$$P(i|x,\theta) = \frac{\partial G([u(x,\theta_1)+\beta\mathbb{E}V_\theta(x)]|x,\theta_2)}{\partial u(x,i,\theta_1)}$$
+	We can use the following contraction mapping to solve $\mathbb{E}V_\theta$
+	$$\mathbb{E}V_\theta(x,i)=\int_{x'}G([u(x',\theta_1)+\beta\mathbb{E}V_\theta(x')]|x',\theta_2) dp(x'|x,i,\theta_3)$$
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Nested Fixed Point Theorem (Rust, J., 1987)}
+\textbf{Example}: $q(\varepsilon|x,\theta_2)$ is given by a multivariate EV distribution
+$$q(\varepsilon|x,\theta_2)=\prod_{i\in C}e^{-\varepsilon(i)+\theta_2}e^{-e^{-\varepsilon(i)+\theta_2}}$$
+Now let's solve the model
+\begin{align*}
+	G &= \int_\varepsilon \max_i [u(x,i,\theta_1)+\beta\mathbb{E}V_\theta(x,i)]dq(\varepsilon|x,\theta_2)\\
+	& = \ln \bigg\{\sum_{i\in C} \exp[u(x,i,\theta_1)+\beta\mathbb{E}V_\theta(x,i)]\bigg\}\\
+	P(i|x,\theta) &=\frac{\exp[u(x,i,\theta_1)+\beta\mathbb{E}V_\theta(x,i)]}{\sum_{i\in C}\exp[u(x,i,\theta_1)+\beta\mathbb{E}V_\theta(x,i)]}\\
+	\mathbb{E}V_\theta(x,i)=\int_{x'}&\ln \bigg\{\sum_{i\in C} \exp[u(x',i,\theta_1)+\beta\mathbb{E}V_\theta(x',i)]\bigg\} dp(x'|x,i,\theta_3)
+\end{align*}
+
+\end{frame}
+
+
+\begin{frame}{Nested Fixed Point Theorem (Rust, J., 1987)}
+under this assumption (cont.)
+\begin{itemize}
+	\item The likelihood function of the sample can be written as 
+	$$l(x_1,...,x_T, i_1,...,i_T|x_0,i_0,\theta)=\prod_{t=1}^TP(i_t|x_t,\theta)p(x_t|x_{t-1},i_{t-1},\theta_3)$$
+	Then use MLE to solve for $\theta$
+\end{itemize}
+Example (cont.)
+\begin{itemize}
+	\item The likelihood function of the sample can be written as 
+	$$l=\prod_{t=1}^T\frac{\exp[u(x_t,i_t,\theta_1)+\beta\mathbb{E}V_\theta(x_t,i_t)]}{\sum_{i\in C}\exp[u(x_t,i_t,\theta_1)+\beta\mathbb{E}V_\theta(x_t,i_t)]}p(x_t|x_{t-1},i_{t-1},\theta_3)$$
+	Then use MLE to solve for $\theta$
+\end{itemize}
+\end{frame}
+
+\begin{frame}{CCP (Hotz, V. J., \& Miller, R. A., 1993)}
+Despite Nested Fixed Point Theorem is very general in estimating structural DDC model, but it's computationally heavy. Hotz and Miller proposed alternative method (Conditional Choice Probability) to do the estimation.
+
+\end{frame}
+\end{document}
+
+
+
