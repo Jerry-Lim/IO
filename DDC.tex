@@ -196,9 +196,107 @@ Example (cont.)
 \end{frame}
 
 \begin{frame}{CCP (Hotz, V. J., \& Miller, R. A., 1993)}
-Despite Nested Fixed Point Theorem is very general in estimating structural DDC model, but it's computationally heavy. Hotz and Miller proposed alternative method (Conditional Choice Probability) to do the estimation.
+Despite Nested Fixed Point Theorem is very general in estimating structural DDC model, but it's computationally heavy (we need to do DP for $V$ with every parameter vector θ). Hotz and Miller proposed alternative method (Conditional Choice Probability) to do the estimation without solving the Bellman equation.
 
+\textbf{Setup}
+\begin{itemize}
+	\item Let $H_t = (b_0,...,b_{t-1})$, and $b_t$ is generated through $F_j(H_{t+1}|H_t)$ when choose $d_j$
+	\item For each period $t$, the utility associate with the choice $j$ is $u_{tj}$, define $u^*_j(H_t):=\mathbb{E}(u_{tj}|H_t)$
+	\item Similar to before, there is stochastic utility components, $u_{tj} = u^*_j(H_t)+\varepsilon_{tj}$, the distribution of $\varepsilon_t = (\varepsilon_{t1},...,\varepsilon_{tJ})\sim G(\varepsilon_t|H_t)$
+	\item The agent choose $\{d_1,...,d_T\}$ to maximize the objective function
+	$$\mathbb{E}_0(\sum_{t=0}^T\sum_{j=0}^Jd_{jt}[u^*_j(H_t)+\varepsilon_{tj}])$$	
+\end{itemize}
 \end{frame}
+
+\begin{frame}{CCP (Hotz, V. J., \& Miller, R. A., 1993)}
+
+
+\textbf{Setup} (cont.)
+\begin{itemize}
+	\item Let $d_s^0 = (d_{s1}^0,...,d_{sJ-1}^0)'$ denote the agent's optimal choice in period $s$
+	\item Define the conditional valuation function of choose $j$ in period $t$
+	$$v_j(H_t)=\mathbb{E}_0[\sum_{s=t+1}^T \sum_{j=1}^J d_{sj}^0[u_j^*(H_t)+\varepsilon_{jt}]|H_t,d_{tj}=1]$$
+	so $d_{tk}^0 = 1$ when $k=\arg\max_{j}\{u_j^*(H_t)+\varepsilon_{jt}+v_{j}(H_t)\}$
+	\item The conditional probability the agent chooses $k$
+	$$p_k(H_t) = Pr\{k=\arg\max_{j}\{u_j^*(H_t)+\varepsilon_{jt}+v_{j}(H_t)\}|H_t\}$$
+	define $p(H_t) = (p_1(H_t),...,p_{J-1}(H_t))$
+\end{itemize}
+\end{frame}
+
+\begin{frame}{CCP (Hotz, V. J., \& Miller, R. A., 1993)}
+From the setup, we can compute the conditional probability of making choice 1, given $H_t$
+\small\begin{align*}
+	p_1(H_t) &= \mathbb{E}(d_{t1}^0=1|H_t)\\
+	&=\int_{\varepsilon_1=-\infty}^\infty\int_{\varepsilon_2=-\infty}^{\varepsilon_1+u^*_{t1}+v_{t1}-u^*_{t2}-v_{t2}}...\int_{\varepsilon_J=-\infty}^{\varepsilon_1+u^*_{t1}+v_{t1}-u^*_{tJ}-v_{tJ}}dG(\varepsilon_1,...,\varepsilon_J|H_t)\\
+	&=\int_{-\infty}^{\infty}G_1(\varepsilon_1,[\varepsilon_1+u^*_{t1}+v_{t1}-u^*_{t2}-v_{t2}],...,[\varepsilon_1+u^*_{t1}+v_{t1}-u^*_{tJ}-v_{tJ}]|H_t)d\varepsilon_1
+\end{align*}
+Define $v = (v_1,...,v_{J-1})'$ and function $Q_j(v,H_t)$
+\small \begin{align*}
+	Q_j(v,H_t)=\int G_j([\varepsilon_j+u^*_{tj}+v_{j}-u^*_{t1}-v_{1}],...,\varepsilon_j,...,[\varepsilon_j+u^*_{tj}+v_{j}-u^*_{tJ}]|H_t) d \varepsilon_j
+\end{align*}
+Let $v(H_t)=(v_{t1}-v_{tJ},...,v_{tJ-1}-v_{tJ}),\ p(H_t)=(p_1(H_t),...,p_{J-1}(H_t)),\ Q(v,H_t)=(Q_1(v,H_t),...,Q_{J-1}(v,H_t))$, we have
+\textcolor{red}{$$p(H_t)=Q(v(H_t),H_t)$$}
+\end{frame}
+
+\begin{frame}{CCP (Hotz, V. J., \& Miller, R. A., 1993)}
+	The estimation requires $Q(v,H_t)$ is invertible in $v$, so that $v(H_t)$ can be expressed as a function of $p(H_t)$------$v_j(H_t)=Q_j^{-1}(p_t(H_t),H_t)$
+	
+	\textit{Proposition 1:} For each $H_t$, the mapping $Q(v,H_t)$ is invertible in $v$
+	
+	  $$\mathbb{E} (\sum_{j=1}^J d_{jt}^0[u_j^*(	H_t)+\varepsilon_{tj}]|H_t)=\sum_{j=1}^Jp_j(H_t)[u_j^*(	H_t)+\mathbb{E}(\varepsilon_{tj}|H_t,d_{tj}^0=1)]$$
+	  And $\mathbb{E}(\varepsilon_{tj}|H_t,d_{tj}^0=1)$ can be written as 
+	  \scriptsize \begin{align*}
+	W_j(p_t,H_t)=&\int \frac{\varepsilon_j}{p_j(H_t)} G_j([\varepsilon_j+u^*_{tj}+v_{j}-u^*_{t1}-v_{1}],...,\varepsilon_j,...,[\varepsilon_j+u^*_{tj}+v_{j}-u^*_{tJ}]|H_t) d \varepsilon_j\\
+	=&\int \frac{\varepsilon_j}{p_j(H_t)} G_j([\varepsilon_j+u^*_{tj}-u^*_{t1}+Q_{tj}^{-1}-Q_{t1}^{-1}],...,\varepsilon_j,...,[\varepsilon_j+u^*_{tj}-u^*_{tJ}+Q_{tj}^{-1}]|H_t) d \varepsilon_j
+\end{align*}
+\normalsize	Then the agent's expected utility 
+$$U(p_t,H_t) = \sum_{k=1}^J p_k(H_t)[u_{tk}^*+W_k(p_t,H_t)]$$ 
+	
+\end{frame}
+
+\begin{frame}{CCP (Hotz, V. J., \& Miller, R. A., 1993)}
+\textbf{Example}: Sterilizing Decision Problem
+\begin{itemize}
+	\item In each time $t$, couples' make decision from two choices: $d_{t1} = 1 $ (not sterilize), $d_{t2} = 1 $ (sterilize)
+	\item Sterilizing is irreversible, if $d_{t1}=0$, $\forall s>t,\ d_{s1}=0$
+	\item Outcome variable $b_t$ is birth, if not sterilize, there is probability $\alpha$ that a children is born, if sterilize, women can't bear children.
+	\begin{equation*}
+F(H_{t+1}=(H_t,1)|H_{t})=\begin{cases}
+	\alpha & d_{t1} = 1 \\
+	0 & d_{t1} = 0
+\end{cases}	
+\end{equation*}
+	\item Define $\tilde H_t = \sum_{s=0}^t b_t$, the utility $$u_1^*(H_t) = u_2^*(H_t)=\beta^t(\delta_1 \tilde H_t+\delta_2\tilde H_t^2 )$$ 
+\end{itemize}
+\end{frame}
+
+\begin{frame}{CCP (Hotz, V. J., \& Miller, R. A., 1993)}
+The couple's decision problem is choosing $\{d_s\}_{s=0}^T$ (or equivalently find the optimal $\tau$ to sterilize) to maximize
+$$\mathbb{E}_0[\sum_{t=0}^T \beta^t(\delta_1 \tilde H_t+\delta_2\tilde H_t^2+d_t\varepsilon_{t1}+ (1-d_t)\varepsilon_{t2})]$$
+where $\varepsilon_{tj}$ is i.i.d. T1EV, which implies the indirect utility of sterilizing in period $t$ is
+$$v_2(H_t)=\beta^t(\gamma +\delta_1 \tilde H_t+\delta_2\tilde H_t^2)/(1-\beta^{T-t})$$
+where $\gamma \approx 0.577$ is the Euler's constant. And the indirect utility of not sterilizing in period $t$ is
+$$v_1(H_t) = \max_{\{d_s\}_{s=t+1}^{T}}\mathbb{E}[\sum_{s=t+1}^{T}\beta^s(\delta_1 \tilde H_s+\delta_2\tilde H_s^2+d_s\varepsilon_{s1}+ (1-d_s)\varepsilon_{s2})|H_t]$$
+\end{frame}
+
+\begin{frame}{CCP (Hotz, V. J., \& Miller, R. A., 1993)}
+Therefore the optimal decision rule is 
+\begin{equation*}
+d_t=\begin{cases}
+	0 & \text{if }\varepsilon_{t1}-\varepsilon_{t2}\geq \beta^{-t}v_1(H_t)- \beta^{-t}v_2(H_t)\\
+	1 & \text{if }\varepsilon_{t1}-\varepsilon_{t2}< \beta^{-t}v_1(H_t)- \beta^{-t}v_2(H_t)
+	\end{cases}	
+\end{equation*}
+This implies the conditional probability of choosing not to sterilize in $t$ is 
+$$p_1(H_t)= \frac{1}{1+\exp[\beta^{-t}v_1(H_t)- \beta^{-t}v_2(H_t)]}$$
+$$p_2(H_t)= \frac{\exp[\beta^{-t}v_1(H_t)- \beta^{-t}v_2(H_t)]}{1+\exp[\beta^{-t}v_1(H_t)- \beta^{-t}v_2(H_t)]}$$
+Follows \textit{Proposition 1} 
+\begin{align*}
+	Q^{-1}(p_1(H_{t+1}),H_{t+1})&=\beta^{t+1}\ln(\frac{1}{\exp[\beta^{-t-1}v_1(H_{t+1})- \beta^{-t-1}v_2(H_{t+1})]})\\
+	&=v_2(H_{t+1})-v_1(H_{t+1})
+\end{align*}
+\end{frame}
+
 \end{document}
 
 

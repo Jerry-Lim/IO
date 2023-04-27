@@ -1,0 +1,147 @@
+\documentclass[10pt]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage{xeCJK}
+\usepackage{graphicx}
+\usepackage {mathtools}
+\usepackage{utopia} %font utopia imported
+\usetheme{CambridgeUS}
+\usecolortheme{dolphin}
+
+% set colors
+\definecolor{myNewColorA}{RGB}{25,25,112}
+\definecolor{myNewColorB}{RGB}{25,25,112}
+\definecolor{myNewColorC}{RGB}{25,25,112}
+\setbeamercolor*{palette primary}{bg=myNewColorC}
+\setbeamercolor*{palette secondary}{bg=myNewColorB, fg = white}
+\setbeamercolor*{palette tertiary}{bg=myNewColorA, fg = white}
+\setbeamercolor*{titlelike}{fg=myNewColorA}
+\setbeamercolor*{title}{bg=myNewColorA, fg = white}
+\setbeamercolor*{item}{fg=myNewColorA}
+\setbeamercolor*{caption name}{fg=myNewColorA}
+\usefonttheme{professionalfonts}
+\usepackage{natbib}
+\usepackage{hyperref}
+%------------------------------------------------------------
+
+\setbeamerfont{title}{size=\large}
+\setbeamerfont{subtitle}{size=\small}
+\setbeamerfont{author}{size=\small}
+\setbeamerfont{date}{size=\small}
+\setbeamerfont{institute}{size=\small}
+\title[NYU MSQE]{Matching}
+
+\author[Junrui Lin]{Junrui Lin}
+
+\institute[jl12680]{NYU MSQE}
+\date[\textcolor{white}{\today} ]
+{\today}
+
+%------------------------------------------------------------
+%This block of commands puts the table of contents at the 
+%beginning of each section and highlights the current section:
+%\AtBeginSection[]
+%{
+%  \begin{frame}
+%    \frametitle{Contents}
+%    \tableofcontents[currentsection]
+%  \end{frame}
+%}
+\AtBeginSection[]{
+  \begin{frame}
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+    \usebeamerfont{title}\insertsectionhead\par%
+  \end{beamercolorbox}
+  \vfill
+  \end{frame}
+}
+%------------------------------------------------------------
+
+\begin{document}
+
+%The next statement creates the title page.
+\frame{\titlepage}
+
+%------------------------------------------------------------
+
+\begin{frame}{Many-to-One Matching (Agarwal, N., 2015)}
+\textbf{Setup}
+\begin{itemize}
+\item Residents match with programs positions
+\item Resident or program $k$'s preference $\succsim_k$
+\item Number of residents in market $t$ is $N_t$, $i\in\mathcal{N}_t$
+\item Number of programs in market $t$ is $J_t$,  $j\in\mathcal{J}_t$
+\item Number of positions offered by program $j$ in each market $t$ is $c_{jt}$
+\item Matching function $\mu_t: \mathcal{N}_t\to \mathcal{J}_t\cup \{0\}$
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Many-to-One Matching (Agarwal, N., 2015)}
+\textbf{Stable Match of Observation in $t$}
+\begin{itemize}
+\item Individual Rationality\begin{itemize}
+\item For residents match is better than unmatch $$\mu_t(i) \succsim_i 0$$
+\item For each program the number of matched residents should be smaller than positions and the matched residents are the best combination  $$|\mu_t^{-1}(j)| \leq c_{jt},\ \mu_t^{−1}(  j) \succsim_j \mu_t^{−1}(  j)\backslash\{i\} ,\ \forall i \in \mu_t^{−1}(  j)$$
+ \end{itemize}
+\item No Blocking: if $j \succ_i \mu_t(i)$ then
+\begin{itemize}
+\item Program $j$ doesn't prefer to replace any of current residents with $i$
+$$\forall i'\in \mu_t^{−1}(  j),\ \mu_t^{−1}(  j)\succsim_j(\mu_t^{−1}(  j)\backslash\{i'\})\cup\{i\}$$
+\item If there still position in program $j$, program $j$ simply prefer not match
+$$|\mu_t^{-1}(j)| \leq c_{jt}\Rightarrow \mu_t^{-1}(j)\succsim_j\mu_t^{-1}(j)\cup\{i\}$$
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Many-to-One Matching (Agarwal, N., 2015)}
+\textbf{Resident preferences} (Pure Characteristics Model)
+$$u_{ijt} = z_{jt} \beta^z_i + w_{jt} \beta^w_i + \xi_{jt}$$
+where $z_{jt}$ is observed program traits, $w_{jt}$ is salary offer, $\xi_{jt}$ is unobserved program trait, and $\beta_i$ is taste parameters. 
+
+The taste parameters can be flexible, in this paper
+$$\beta^z_i = x_i \Pi + \eta_i,\ \beta^w_i = \beta^w $$
+where $x_i$ are observable characteristics of a resident and $\eta_i$ is unobserved taste determinants.
+
+There is no typical BLP set up $\varepsilon_{ijt}+\xi_{jt}$, because their distributions (variances) can't be separately identified since aggregate demand(market share) used to invert for product-level unobservables in consumer models is not observed in the dataset.
+\end{frame}
+
+\begin{frame}{Many-to-One Matching (Agarwal, N., 2015)}
+\textbf{Program preferences} (Human Capital)
+
+Programs can't observe the value of a team of residents, the paper models residency program preferences through a latent variable.
+$$h_i = x_i \alpha + \varepsilon_i $$
+where $x_i$ is the characteristics of the resident, $\varepsilon_i$ is normally distributed.
+\bigskip
+
+\textbf{Normalization}
+
+Without generality the model can be written as 
+$$u_j = z_j \beta + \xi_j,\ h_i = x_i \alpha + \varepsilon_i$$
+And assume $\mathbb{E}[u_j | z_j = 0] = 0$, $\mathbb{E}[h_i | x_i = 0] = 0$, $\xi_j$ and $\varepsilon_i$ are i.i.d. standard normal random variables.
+\end{frame}
+
+
+\begin{frame}{Many-to-One Matching (Agarwal, N., 2015)}
+\textbf{Endogeneity Issue}
+
+In previous setting 
+$$u_{ijt} = z_{jt} \beta^z_i + w_{jt} \beta^w_i + \xi_{jt}$$
+but $w_{jt}$ might correlated with program unobservables $\xi_{jt}$, which violates the previous normalization.
+
+To solve this, the paper imposes a linear control function(IV)
+$$w_{jt} = z_{jt} \gamma + r_{jt} \tau + \nu_{jt}$$
+where $r_{jt}$ is the instrument, further more, the paper model $\xi_{jt}= \kappa\nu_{jt}+\sigma \zeta_{jt}$
+
+$$u_{ijt}=z_{jt} \beta^z_i+w_{jt} \beta^w_i + \kappa\hat\nu_{jt}+\sigma \zeta_{jt}$$
+\end{frame}
+
+\begin{frame}{Many-to-One Matching (Agarwal, N., 2015)}
+
+
+\end{frame}
+
+\end{document}
+
+
+
