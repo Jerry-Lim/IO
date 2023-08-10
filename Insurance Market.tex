@@ -1,0 +1,149 @@
+\documentclass[10pt]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage{xeCJK}
+\usepackage{graphicx}
+\usepackage {mathtools}
+\usepackage{utopia} %font utopia imported
+\usetheme{CambridgeUS}
+\usecolortheme{dolphin}
+
+% set colors
+\definecolor{myNewColorA}{RGB}{25,25,112}
+\definecolor{myNewColorB}{RGB}{25,25,112}
+\definecolor{myNewColorC}{RGB}{25,25,112}
+\setbeamercolor*{palette primary}{bg=myNewColorC}
+\setbeamercolor*{palette secondary}{bg=myNewColorB, fg = white}
+\setbeamercolor*{palette tertiary}{bg=myNewColorA, fg = white}
+\setbeamercolor*{titlelike}{fg=myNewColorA}
+\setbeamercolor*{title}{bg=myNewColorA, fg = white}
+\setbeamercolor*{item}{fg=myNewColorA}
+\setbeamercolor*{caption name}{fg=myNewColorA}
+\usefonttheme{professionalfonts}
+\usepackage{natbib}
+\usepackage{hyperref}
+%------------------------------------------------------------
+
+\setbeamerfont{title}{size=\large}
+\setbeamerfont{subtitle}{size=\small}
+\setbeamerfont{author}{size=\small}
+\setbeamerfont{date}{size=\small}
+\setbeamerfont{institute}{size=\small}
+\title[NYU MSQE]{Matching}
+
+\author[Junrui Lin]{Junrui Lin}
+
+\institute[jl12680]{NYU MSQE}
+\date[\textcolor{white}{\today} ]
+{\today}
+
+%------------------------------------------------------------
+%This block of commands puts the table of contents at the 
+%beginning of each section and highlights the current section:
+%\AtBeginSection[]
+%{
+%  \begin{frame}
+%    \frametitle{Contents}
+%    \tableofcontents[currentsection]
+%  \end{frame}
+%}
+\AtBeginSection[]{
+  \begin{frame}
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+    \usebeamerfont{title}\insertsectionhead\par%
+  \end{beamercolorbox}
+  \vfill
+  \end{frame}
+}
+%------------------------------------------------------------
+
+\begin{document}
+
+%The next statement creates the title page.
+\frame{\titlepage}
+
+%------------------------------------------------------------
+
+\begin{frame}{Risk Preference Estimation (Cohen and Einav, 2007)}
+\textbf{Setup}
+\begin{itemize}
+\item $x_i$: vector of characteristics individual $i$ reports to the insurance company
+\item $p_{it} = f_t(x_i)$: regular premium function that unknown for us, stable over time
+\item $d_{it} = \min\{\frac{1}{2}p_{it},\ cap_t\}$: regular deductible level
+\item $w_i$: wealth of individual $i$
+\item $(p_i^h,d_i^h)$: insurance contract, high premium, high deductible
+\item $(p_i^l,d_i^l)$: insurance contract, low premium, low deductible
+\item $t_i$: duration of the policy
+\item $u_i(w)$: individual's vNM utility function
+\item $\lambda_i$: claim rate, known to individual (assume no moral harzard)
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Risk Preference Estimation (Cohen and Einav, 2007)}
+\textbf{Model}
+
+The expected utility from a contract $(p,d)$ is
+$$v(p,d):=(1-\lambda t)u(w-pt)+(\lambda t)u(w-pt-d)$$
+when individual is indifference between $(p^h,d^h)$ and $(p^l,d^l)$
+\begin{align*}
+	\lambda &= \lim_{t\to 0}\frac{\frac{1}{t}\bigg(u(w-p^h t)-u(w-p^lt))\bigg)}{\bigg(u(w-p^h t)-u(w-p^ht-d^h)-u(w-p^lt)+u(w-p^lt-d^l)\bigg)}\\
+	&=\frac{(p^l-p^h)u'(w)}{u(w-d^l)-u(w-d^h)}
+\end{align*}
+Using Taylor expansion 
+$$\frac{p^l-p^h}{\lambda}u'(w) \approx (d^h-d^l) u'(w)-\frac{1}{2}(d^h-d^l)(d^h+d^l)u''(w)$$
+\end{frame}
+
+\begin{frame}{Risk Preference Estimation (Cohen and Einav, 2007)}
+\textbf{Model} (cont.)
+
+Let $\Delta d = d^h-d^l$, $\Delta p = p^l-p^h$, and $\bar{d} = \frac{1}{2}(d^h+d^l)$, then previous Taylor expansion will be
+$$\frac{\Delta p}{\lambda}u'(w)=\Delta d u'(w)-\bar d \Delta d u''(w)\Rightarrow r:=\frac{-u''(w)}{u'(w)}=\frac{\frac{\Delta p}{\lambda\Delta d}-1}{\bar d}$$
+where $r$ is coefficient of absolute risk aversion at wealth level $w$.
+
+\bigskip
+\textbf{Note}: the indifferent set $(r^*(\lambda),\lambda)$ and $(\lambda^*(r),r)$ are interchangeable and have closed form.
+\end{frame}
+
+\begin{frame}{Risk Preference Estimation (Cohen and Einav, 2007)}
+\textbf{Model Estimation}
+
+We want to estimate the joint distribution of $(\lambda_i, r_i)$, conditional on observables $x_i$. Assuming $(\lambda_i, r_i)$ is bivariate lognormal
+\begin{align*}
+	\ln \lambda_i = x_i'\beta+\varepsilon_i,\ \ln r_i = x_i'\gamma + \nu_i
+\end{align*}
+$$\begin{bmatrix}
+	\varepsilon_i\\
+	\nu_i
+\end{bmatrix}\overset{\text{i.i.d.}}{\sim}N\bigg(\begin{bmatrix}
+	0\\
+	0
+\end{bmatrix},\begin{bmatrix}
+	\sigma_\lambda^2 & \rho\sigma_\lambda\sigma_r\\
+	\rho\sigma_\lambda\sigma_r & \sigma_r^2
+\end{bmatrix}\bigg)$$
+\bigskip
+$\lambda$ and $r$ are not directly observed, we only observe claims and deductible choice.
+
+Assume claims follows Poisson process
+$$claims_i \sim Poisson(\lambda_i t_i)$$
+When choosing deductible plans, they will choose low deductible iff $r_i\geq r_i^*(\lambda_i)$
+$$Pr(\text{low deductible})=Pr\bigg(\exp(x_i'\gamma+\nu_i)>\frac{\frac{\Delta p_i}{\exp(x_i'\beta+\varepsilon_i)\Delta d_i}-1}{\bar d_i}\bigg)$$
+Then it's fairly easy to write out the likelihood or use simulation method
+\end{frame}
+
+
+\begin{frame}{Asymmetric Information (Einav et al. 2010)}
+\textbf{Setup}
+
+\end{frame}
+
+\begin{frame}{Asymmetric Information (Einav et al. 2010)}
+
+
+\end{frame}
+
+\end{document}
+
+
+
